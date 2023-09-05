@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.ImageView;
 
@@ -12,14 +13,15 @@ import jp.ac.meijou.android.s221205056.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private PrefDataStore prefDataStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        prefDataStore = PrefDataStore.getInstance(this);
 
-        binding.text.setText(R.string.my_name);
 
         binding.button.setOnClickListener(v -> {
             var text = binding.editText.getText().toString();
@@ -28,7 +30,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         binding.button2.setOnClickListener(v -> {
-            binding.text.setText(R.string.my_name);
+            var text = binding.editText.getText().toString();
+            prefDataStore.setString("name", text);
+
+            Log.d("kokoro", "save text:"+ binding.text.getText());
 
         });
 
@@ -48,8 +53,17 @@ public class MainActivity extends AppCompatActivity {
                 // テキストが更新されたあとに呼ばれる
                 binding.text.setText(editable.toString());
             }
+
         });
 
+        Log.d("kokoro", "onCreate text:"+ binding.text.getText());
+    }
 
+    protected void onStart() {
+        super.onStart();
+        prefDataStore.getString("name")
+                .ifPresent(name -> binding.text.setText(name));
+
+        Log.d("kokoro", "onStart text:"+ binding.text.getText());
     }
 }
